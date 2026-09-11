@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý Users</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 10px;
+            flex: 1;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .add-btn {
+            background: #2196f3;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1> Quản lý Users</h1>
+
+        <!-- FORM CREATE -->
+
+        <form id="userForm">
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Nhập tên"
+                required
+            >
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Nhập email"
+                required
+            >
+
+            <button
+                type="submit"
+                class="add-btn"
+            >
+                Thêm User
+            </button>
+
+        </form>
+
+        <!-- TABLE -->
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Thao tác</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="userTable">
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <script>
+
+        // ================= READ =================
+
+        async function loadUsers() {
+
+            const response = await fetch("/users");
+
+            const users = await response.json();
+
+            const table = document.getElementById("userTable");
+
+            table.innerHTML = "";
+
+            users.forEach(user => {
+
+                table.innerHTML += `
+
+                    <tr>
+
+                        <td>${user.id}</td>
+
+                        <td>${user.name}</td>
+
+                        <td>${user.email}</td>
+
+                        <td>
+
+                            <button
+                                class="edit-btn"
+                                onclick="editUser(${user.id}, '${user.name}', '${user.email}')"
+                            >
+                                Sửa
+                            </button>
+
+                            <button
+                                class="delete-btn"
+                                onclick="deleteUser(${user.id})"
+                            >
+                                Xóa
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+        }
+
+
+        // ================= CREATE =================
+
+        document
+            .getElementById("userForm")
+            .addEventListener("submit", async function(event) {
+
+                event.preventDefault();
+
+                const name =
+                    document.getElementById("name").value;
+
+                const email =
+                    document.getElementById("email").value;
+
+
+                await fetch("/users", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        name: name,
+                        email: email
+                    })
+
+                });
+
+
+                // Xóa dữ liệu trong form
+
+                document.getElementById("name").value = "";
+                document.getElementById("email").value = "";
+
+
+                // Load lại danh sách
+
+                loadUsers();
+
+            });
+
+
+        // ================= DELETE =================
+
+        async function deleteUser(id) {
+
+            await fetch(`/users/${id}`, {
+
+                method: "DELETE"
+
+            });
+
+            loadUsers();
+        }
+
+
+        // ================= UPDATE =================
+
+        async function editUser(id, oldName, oldEmail) {
+
+            const name = prompt(
+                "Nhập tên mới:",
+                oldName
+            );
+
+            if (name === null) return;
+
+
+            const email = prompt(
+                "Nhập email mới:",
+                oldEmail
+            );
+
+            if (email === null) return;
+
+
+            await fetch(`/users/${id}`, {
+
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    name: name,
+                    email: email
+                })
+
+            });
+
+
+            loadUsers();
+        }
+
+
+        // Load dữ liệu khi mở trang
+
+        loadUsers();
+
+    </script>
+
+</body>
+
+</html>
+
