@@ -1,296 +1,765 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Quản lý Users</title>
+    <title>Cold Chain Dashboard</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin: 0;
-            padding: 40px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        input {
-            padding: 10px;
-            flex: 1;
-        }
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .add-btn {
-            background: #2196f3;
-            color: white;
-        }
-
-        .delete-btn {
-            background: #f44336;
-            color: white;
-        }
-
-        .edit-btn {
-            background: #ff9800;
-            color: white;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-        }
-
-        th {
-            background: #eee;
-        }
-    </style>
+    <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
 
-    <div class="container">
+<div class="app">
 
-        <h1> Quản lý Users</h1>
+    <!-- ================= SIDEBAR ================= -->
 
-        <!-- FORM CREATE -->
+    <aside class="sidebar">
 
-        <form id="userForm">
+        <div class="logo">
+            <div class="logo-icon">❄</div>
 
-            <input
-                type="text"
-                id="name"
-                placeholder="Nhập tên"
-                required
-            >
+            <div>
+                <h2>ColdChain</h2>
+                <span>Telemetry System</span>
+            </div>
+        </div>
 
-            <input
-                type="email"
-                id="email"
-                placeholder="Nhập email"
-                required
-            >
 
-            <button
-                type="submit"
-                class="add-btn"
-            >
-                Thêm User
+        <nav class="menu">
+
+            <button class="menu-item active" data-page="dashboard">
+                <span>📊</span>
+                Dashboard
             </button>
 
-        </form>
+            <button class="menu-item" data-page="warehouses">
+                <span>🏭</span>
+                Tra cứu kho
+            </button>
 
-        <!-- TABLE -->
+            <button class="menu-item" data-page="vehicles">
+                <span>🚚</span>
+                Tra cứu xe
+            </button>
 
-        <table>
+            <button class="menu-item" data-page="devices">
+                <span>📡</span>
+                Tra cứu thiết bị
+            </button>
 
-            <thead>
+            <button class="menu-item" data-page="sensor-data">
+                <span>🌡️</span>
+                Dữ liệu
+            </button>
 
-                <tr>
-                    <th>ID</th>
-                    <th>Tên</th>
-                    <th>Email</th>
-                    <th>Thao tác</th>
-                </tr>
+        </nav>
 
-            </thead>
 
-            <tbody id="userTable">
-            </tbody>
+        <div class="sidebar-bottom">
 
-        </table>
+            <div class="system-status">
+                <span class="status-dot"></span>
+                Hệ thống hoạt động
+            </div>
 
-    </div>
+        </div>
 
+    </aside>
 
-    <script>
 
-        // ================= READ =================
 
-        async function loadUsers() {
+    <!-- ================= MAIN ================= -->
 
-            const response = await fetch("/users");
+    <main class="main">
 
-            const users = await response.json();
+        <!-- HEADER -->
 
-            const table = document.getElementById("userTable");
+        <header class="header">
 
-            table.innerHTML = "";
+            <div>
 
-            users.forEach(user => {
+                <h1 id="page-title">
+                    Dashboard
+                </h1>
 
-                table.innerHTML += `
+                <p id="page-description">
+                    Tổng quan hệ thống giám sát chuỗi lạnh
+                </p>
 
-                    <tr>
+            </div>
 
-                        <td>${user.id}</td>
 
-                        <td>${user.name}</td>
+            <div class="header-right">
 
-                        <td>${user.email}</td>
+                <span id="current-time"></span>
 
-                        <td>
+                <div class="avatar">
+                    AD
+                </div>
 
-                            <button
-                                class="edit-btn"
-                                onclick="editUser(${user.id}, '${user.name}', '${user.email}')"
-                            >
-                                Sửa
-                            </button>
+            </div>
 
-                            <button
-                                class="delete-btn"
-                                onclick="deleteUser(${user.id})"
-                            >
-                                Xóa
-                            </button>
+        </header>
 
-                        </td>
 
-                    </tr>
 
-                `;
+        <!-- ================= CONTENT ================= -->
 
-            });
-        }
+        <section class="content">
 
 
-        // ================= CREATE =================
+            <!-- ================= DASHBOARD ================= -->
 
-        document
-            .getElementById("userForm")
-            .addEventListener("submit", async function(event) {
+            <div class="page active-page" id="dashboard">
 
-                event.preventDefault();
+                <div class="welcome">
 
-                const name =
-                    document.getElementById("name").value;
+                    <div>
 
-                const email =
-                    document.getElementById("email").value;
+                        <h2>
+                            Cold Chain Dashboard 👋
+                        </h2>
 
+                        <p>
+                            Theo dõi kho, xe, thiết bị
+                            và dữ liệu cảm biến.
+                        </p>
 
-                await fetch("/users", {
+                    </div>
 
-                    method: "POST",
+                    <div class="temperature-icon">
+                        ❄️
+                    </div>
 
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
+                </div>
 
-                    body: JSON.stringify({
-                        name: name,
-                        email: email
-                    })
 
-                });
+                <!-- STATISTICS -->
 
+                <div class="stats-grid">
 
-                // Xóa dữ liệu trong form
+                    <div class="stat-card">
 
-                document.getElementById("name").value = "";
-                document.getElementById("email").value = "";
+                        <div class="stat-icon warehouse-icon">
+                            🏭
+                        </div>
 
+                        <div>
 
-                // Load lại danh sách
+                            <p>Tổng số kho</p>
 
-                loadUsers();
+                            <h3 id="warehouse-count">
+                                0
+                            </h3>
 
-            });
+                            <span class="stat-active">
+                                ● Trong database
+                            </span>
 
+                        </div>
 
-        // ================= DELETE =================
+                    </div>
 
-        async function deleteUser(id) {
 
-            await fetch(`/users/${id}`, {
 
-                method: "DELETE"
+                    <div class="stat-card">
 
-            });
+                        <div class="stat-icon vehicle-icon">
+                            🚚
+                        </div>
 
-            loadUsers();
-        }
+                        <div>
 
+                            <p>Tổng số xe</p>
 
-        // ================= UPDATE =================
+                            <h3 id="vehicle-count">
+                                0
+                            </h3>
 
-        async function editUser(id, oldName, oldEmail) {
+                            <span class="stat-active">
+                                ● Trong database
+                            </span>
 
-            const name = prompt(
-                "Nhập tên mới:",
-                oldName
-            );
+                        </div>
 
-            if (name === null) return;
+                    </div>
 
 
-            const email = prompt(
-                "Nhập email mới:",
-                oldEmail
-            );
 
-            if (email === null) return;
+                    <div class="stat-card">
 
+                        <div class="stat-icon device-icon">
+                            📡
+                        </div>
 
-            await fetch(`/users/${id}`, {
+                        <div>
 
-                method: "PUT",
+                            <p>Tổng thiết bị</p>
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                            <h3 id="device-count">
+                                0
+                            </h3>
 
-                body: JSON.stringify({
-                    name: name,
-                    email: email
-                })
+                            <span class="stat-active">
+                                ● Trong database
+                            </span>
 
-            });
+                        </div>
 
+                    </div>
 
-            loadUsers();
-        }
 
 
-        // Load dữ liệu khi mở trang
+                    <div class="stat-card">
 
-        loadUsers();
+                        <div class="stat-icon alert-icon">
+                            📊
+                        </div>
 
-    </script>
+                        <div>
+
+                            <p>Tổng dữ liệu</p>
+
+                            <h3 id="data-count">
+                                0
+                            </h3>
+
+                            <span class="stat-active">
+                                ● Bản ghi
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- QUICK ACCESS -->
+
+                <div class="section-title">
+
+                    <h2>
+                        Chức năng tra cứu
+                    </h2>
+
+                </div>
+
+
+                <div class="quick-grid">
+
+                    <div
+                        class="quick-card"
+                        onclick="showPage('warehouses')"
+                    >
+
+                        <div class="quick-icon">
+                            🏭
+                        </div>
+
+                        <h3>
+                            Tra cứu kho
+                        </h3>
+
+                        <p>
+                            Xem thông tin các kho lạnh
+                            trong hệ thống.
+                        </p>
+
+                        <button>
+                            Xem kho →
+                        </button>
+
+                    </div>
+
+
+
+                    <div
+                        class="quick-card"
+                        onclick="showPage('vehicles')"
+                    >
+
+                        <div class="quick-icon">
+                            🚚
+                        </div>
+
+                        <h3>
+                            Tra cứu xe
+                        </h3>
+
+                        <p>
+                            Xem phương tiện vận chuyển
+                            và kho quản lý.
+                        </p>
+
+                        <button>
+                            Xem xe →
+                        </button>
+
+                    </div>
+
+
+
+                    <div
+                        class="quick-card"
+                        onclick="showPage('devices')"
+                    >
+
+                        <div class="quick-icon">
+                            📡
+                        </div>
+
+                        <h3>
+                            Tra cứu thiết bị
+                        </h3>
+
+                        <p>
+                            Xem thiết bị IoT và trạng thái
+                            hoạt động.
+                        </p>
+
+                        <button>
+                            Xem thiết bị →
+                        </button>
+
+                    </div>
+
+
+
+                    <div
+                        class="quick-card"
+                        onclick="showPage('sensor-data')"
+                    >
+
+                        <div class="quick-icon">
+                            🌡️
+                        </div>
+
+                        <h3>
+                            Dữ liệu cảm biến
+                        </h3>
+
+                        <p>
+                            Theo dõi nhiệt độ và độ ẩm
+                            từ thiết bị.
+                        </p>
+
+                        <button>
+                            Xem dữ liệu →
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= WAREHOUSE ================= -->
+
+            <div class="page" id="warehouses">
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <h2>
+                            Tra cứu kho
+                        </h2>
+
+                        <p>
+                            Dữ liệu lấy trực tiếp từ database
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="primary-btn"
+                        onclick="loadWarehouses()"
+                    >
+                        ↻ Làm mới
+                    </button>
+
+                </div>
+
+
+                <div class="search-box">
+
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        id="warehouse-search"
+                        placeholder="Tìm mã hoặc tên kho..."
+                    >
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Tên kho</th>
+                            <th>Longitude</th>
+                            <th>Latitude</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody id="warehouse-table">
+
+                        <tr>
+                            <td colspan="6" class="loading">
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= VEHICLE ================= -->
+
+            <div class="page" id="vehicles">
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <h2>
+                            Tra cứu xe
+                        </h2>
+
+                        <p>
+                            Dữ liệu phương tiện từ database
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="primary-btn"
+                        onclick="loadVehicles()"
+                    >
+                        ↻ Làm mới
+                    </button>
+
+                </div>
+
+
+                <div class="search-box">
+
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        id="vehicle-search"
+                        placeholder="Tìm biển số xe..."
+                    >
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Biển số</th>
+                            <th>Warehouse ID</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody id="vehicle-table">
+
+                        <tr>
+                            <td colspan="5" class="loading">
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= DEVICE ================= -->
+
+            <div class="page" id="devices">
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <h2>
+                            Tra cứu thiết bị
+                        </h2>
+
+                        <p>
+                            Danh sách thiết bị IoT
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="primary-btn"
+                        onclick="loadDevices()"
+                    >
+                        ↻ Làm mới
+                    </button>
+
+                </div>
+
+
+                <div class="search-box">
+
+                    <span>🔍</span>
+
+                    <input
+                        type="text"
+                        id="device-search"
+                        placeholder="Tìm device token..."
+                    >
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Device Token</th>
+                            <th>Warehouse ID</th>
+                            <th>Vehicle ID</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody id="device-table">
+
+                        <tr>
+                            <td colspan="6" class="loading">
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ================= DATA ================= -->
+
+            <div class="page" id="sensor-data">
+
+                <div class="page-heading">
+
+                    <div>
+
+                        <h2>
+                            Dữ liệu cảm biến
+                        </h2>
+
+                        <p>
+                            Dữ liệu temperature và humidity
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="primary-btn"
+                        onclick="loadSensorData()"
+                    >
+                        ↻ Làm mới
+                    </button>
+
+                </div>
+
+
+                <!-- SENSOR SUMMARY -->
+
+                <div class="sensor-grid">
+
+                    <div class="sensor-card">
+
+                        <div class="sensor-header">
+                            <span>🌡️</span>
+                            <p>Nhiệt độ mới nhất</p>
+                        </div>
+
+                        <h2 id="latest-temperature">
+                            --
+                        </h2>
+
+                        <span class="normal">
+                            Dữ liệu database
+                        </span>
+
+                    </div>
+
+
+                    <div class="sensor-card">
+
+                        <div class="sensor-header">
+                            <span>💧</span>
+                            <p>Độ ẩm mới nhất</p>
+                        </div>
+
+                        <h2 id="latest-humidity">
+                            --
+                        </h2>
+
+                        <span class="normal">
+                            Dữ liệu database
+                        </span>
+
+                    </div>
+
+
+                    <div class="sensor-card">
+
+                        <div class="sensor-header">
+                            <span>📡</span>
+                            <p>Thiết bị</p>
+                        </div>
+
+                        <h2 id="latest-device">
+                            --
+                        </h2>
+
+                        <span class="normal">
+                            Device ID
+                        </span>
+
+                    </div>
+
+
+                    <div class="sensor-card">
+
+                        <div class="sensor-header">
+                            <span>⚠️</span>
+                            <p>Vượt ngưỡng</p>
+                        </div>
+
+                        <h2 id="warning-count">
+                            0
+                        </h2>
+
+                        <span class="warning">
+                            Temperature ngoài 2°C - 8°C
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- DATA TABLE -->
+
+                <div class="data-section">
+
+                    <h3>
+                        Dữ liệu cảm biến
+                    </h3>
+
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Device ID</th>
+                                <th>Nhiệt độ</th>
+                                <th>Độ ẩm</th>
+                                <th>Thời gian</th>
+                                <th>Trạng thái</th>
+
+                            </tr>
+
+                            </thead>
+
+
+                            <tbody id="sensor-table">
+
+                            <tr>
+
+                                <td colspan="6" class="loading">
+                                    Đang tải dữ liệu...
+                                </td>
+
+                            </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="./script.js"></script>
 
 </body>
-
 </html>
-
+```
